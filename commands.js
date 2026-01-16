@@ -1,0 +1,64 @@
+const commands = [
+    {
+        name: 'settriggerword',
+        description: 'set the trigger word for reactions',
+        type: 1,
+        options: [
+            {
+                type: 3,
+                name: 'word',
+                description: 'The word to set as the trigger',
+                required: true
+            }
+        ],
+        integration_types: [0],
+        contexts: [0]
+    },
+    {
+        name: 'settriggeremoji',
+        description: 'set the trigger emoji for reactions',
+        type: 1,
+        options: [
+            {
+                type: 3,
+                name: 'emoji',
+                description: 'The emoji to set as the trigger',
+                required: true
+            }
+        ],
+        integration_types: [0],
+        contexts: [0]
+    }
+]
+
+const endpoint = `applications/${appId}/commands`;
+
+try {
+    await DiscordRequest(endpoint, { method: 'PUT', body: commands });
+} catch (err) {
+    console.error(err);
+}
+
+async function DiscordRequest(endpoint, options) {
+  // append endpoint to root API URL
+  const url = 'https://discord.com/api/v10/' + endpoint;
+  // Stringify payloads
+  if (options.body) options.body = JSON.stringify(options.body);
+  // Use fetch to make requests
+  const res = await fetch(url, {
+    headers: {
+      Authorization: `Bot ${process.env.DISCORD_TOKEN}`,
+      'Content-Type': 'application/json; charset=UTF-8',
+      'User-Agent': 'DiscordBot (https://github.com/discord/discord-example-app, 1.0.0)',
+    },
+    ...options
+  });
+  // throw API errors
+  if (!res.ok) {
+    const data = await res.json();
+    console.log(res.status);
+    throw new Error(JSON.stringify(data));
+  }
+  // return original response
+  return res;
+}
